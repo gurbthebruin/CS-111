@@ -1,0 +1,337 @@
+Total: 428 samples
+     321  75.0%  75.0%      428 100.0% thread_needle
+      18   4.2%  79.2%       18   4.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:204
+      17   4.0%  83.2%       17   4.0% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+      10   2.3%  85.5%       64  15.0% SortedList_lookup
+       9   2.1%  87.6%        9   2.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       9   2.1%  89.7%       43  10.0% SortedList_insert
+       7   1.6%  91.4%        7   1.6% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       6   1.4%  92.8%        6   1.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:164
+       6   1.4%  94.2%        6   1.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       5   1.2%  95.3%        5   1.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:206
+       4   0.9%  96.3%        4   0.9% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:203
+       4   0.9%  97.2%        4   0.9% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:211
+       3   0.7%  97.9%        3   0.7% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:161
+       3   0.7%  98.6%        3   0.7% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:212
+       3   0.7%  99.3%        3   0.7% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1733
+       3   0.7% 100.0%        3   0.7% _init
+       0   0.0% 100.0%      428 100.0% ?? /usr/src/debug////////glibc-2.17-c758a686/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:118
+       0   0.0% 100.0%      428 100.0% start_thread
+ROUTINE ====================== thread_needle in /u/ee/ugrad/gurbir/cs111/lab2b/lab2_list.c
+   321    428 Total samples (flat / cumulative)
+     .      .   96: void seg_fault_fc() {
+     .      .   97:         fprintf(stderr, "Error: Segmentation fault :( ");
+     .      .   98:         exit(2);
+     .      .   99: }
+     .      .  100: 
+---
+     .      .  101: void* thread_needle(void *stuff) {
+     .      .  102:     long timer1 = 0;
+     .      .  103:     struct timespec initializer, closer;
+     .      .  104:     SortedListElement_t* array = stuff;
+     .      .  105:     unsigned long i = 0;
+     .      .  106:     while (i < iterations) {
+     1      1  107: 	const char* map = (array+i) -> key; 
+     .      .  108:      int randomizer = 31;
+     .      .  109: 
+     .      .  110:      while (*map) {
+     .      .  111:             randomizer = 28 * randomizer ^ *map;
+     .      .  112:             map++;
+     .      .  113:       }
+     .      .  114: 
+     .      .  115:         unsigned int hash = randomizer % lists;
+     .      .  116: 	switch (sync1) {
+     .      .  117: 		case 'm':
+     .      .  118: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  119: 			pthread_mutex_lock(mutex + hash);
+     .      .  120: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  121:  		       	timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  122:         		SortedList_insert(headNode + hash, (SortedListElement_t *) (array+i));
+     .      .  123: 			pthread_mutex_unlock(mutex + hash);
+     .      .  124: 			break; 
+     .      .  125: 		case 's':
+     .      .  126: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+   203    203  127: 			while (__sync_lock_test_and_set(lock + hash, 1)); 
+     .      .  128: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  129:        			timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .     43  130:         		SortedList_insert(headNode + hash, (SortedListElement_t *) (array+i));
+     .      .  131: 			__sync_lock_release(lock + hash);	
+     .      .  132: 			break; 
+     .      .  133: 		default:  
+     .      .  134: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  135: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  136:         		timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  137:         		SortedList_insert(headNode + hash, (SortedListElement_t *) (array+i));
+     .      .  138: 			break; 
+     .      .  139: 		}
+     .      .  140: 		i++; 
+     .      .  141:     }
+     .      .  142: 
+     .      .  143:         unsigned long length2 = 0;
+     .      .  144: 	i = 0;
+     .      .  145:         while (i < lists) {
+     .      .  146: 	     switch (sync1) {
+     .      .  147: 		case 'm': 
+     .      .  148: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  149:      		        pthread_mutex_lock(mutex + i);
+     .      .  150:                 	clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  151:                 	timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  152: 			length2 += SortedList_length(headNode + i);
+     .      .  153: 			pthread_mutex_unlock(mutex + i);
+     .      .  154: 			break;
+     .      .  155: 		case 's': 
+     .      .  156: 			while (__sync_lock_test_and_set(lock + i, 1));
+     .      .  157: 			length2 += SortedList_length(headNode + i);
+     .      .  158: 			__sync_lock_release(lock + i);
+     .      .  159: 			break;
+     .      .  160: 		default: 
+     .      .  161: 			length2 += SortedList_length(headNode + i);
+     .      .  162: 		}
+     .      .  163: 	   i++;  
+     .      .  164:       }  
+     .      .  165:     if (length2 < iterations) {
+     .      .  166:         fprintf(stderr, "Error: failed to create list.\n");
+     .      .  167:         exit(2);
+     .      .  168:     }
+     .      .  169: 
+     .      .  170:     char *curr_key = malloc(sizeof(char)*256);
+     .      .  171: 
+     .      .  172:     SortedListElement_t *ptr;
+     .      .  173:     i = 0;
+     .      .  174: 
+     .      .  175:     while (i < iterations) {
+     .      .  176: 	const char* map = (array+i) -> key;
+     .      .  177:      	int randomizer = 31;
+     .      .  178: 
+     .      .  179:      	while (*map) {
+     .      .  180:             randomizer = 28 * randomizer ^ *map;
+     .      .  181:             map++;
+     .      .  182:       	}
+     .      .  183: 
+     .      .  184:         unsigned int hash = randomizer % lists;
+     .      .  185: 	int n = SortedList_delete(ptr);
+     .      .  186: 	switch (sync1) {
+     .      .  187: 		case 'm':
+     .      .  188:         		strcpy(curr_key, (array+i)->key);
+     .      .  189: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  190: 			pthread_mutex_lock(mutex + hash);
+     .      .  191: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  192: 			timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  193: 			ptr = SortedList_lookup(headNode + hash, curr_key);
+     .      .  194: 			if (ptr == NULL) {
+     .      .  195:                     	    fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  196:                 	    exit(2);
+     .      .  197: 		        }
+     .      .  198:         		n = SortedList_delete(ptr);
+     .      .  199:             		if (n != 0) {
+     .      .  200:                     	    fprintf(stderr, "Error: Failed to delete from list\n");
+     .      .  201:                 	    exit(2);
+     .      .  202:             		}
+     .      .  203: 			pthread_mutex_unlock(mutex + hash);					
+     .      .  204: 			break;
+     .      .  205: 		case 's':
+     .      .  206:                         strcpy(curr_key, (array+i)->key);
+     .      .  207:                         clock_gettime(CLOCK_MONOTONIC, &initializer);			
+   117    117  208: 			while (__sync_lock_test_and_set(lock + hash, 1));
+     .      .  209:                         clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  210:                         timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .     64  211:                         ptr = SortedList_lookup(headNode + hash, curr_key);
+     .      .  212:                         if (ptr == NULL) {
+     .      .  213:                             fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  214:                             exit(2);
+     .      .  215:                         }
+     .      .  216:                         n = SortedList_delete(ptr);
+     .      .  217:                         if (n != 0) {
+     .      .  218:                             fprintf(stderr, "Error: Failed to delete from list\n");
+     .      .  219:                             exit(2);
+     .      .  220:                         }
+     .      .  221: 			 __sync_lock_release(lock + hash);
+     .      .  222: 			break;
+     .      .  223: 		default: 
+     .      .  224:                         strcpy(curr_key, (array+i)->key);
+     .      .  225:                         clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  226: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  227:                         timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  228:                         ptr = SortedList_lookup(headNode + hash, curr_key);
+     .      .  229:                         if (ptr == NULL) {
+     .      .  230:                             fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  231:                             exit(2);
+     .      .  232:                         }
+     .      .  233:                         n = SortedList_delete(ptr);
+     .      .  234:                         if (n != 0) {
+     .      .  235:                             fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  236:                             exit(2);
+     .      .  237:                         }
+     .      .  238: 			break;	
+     .      .  239: 	}
+     .      .  240: 	i++; 
+     .      .  241: 
+     .      .  242:     }
+     .      .  243: 
+     .      .  244:         return (void *) timer1;
+     .      .  245: }
+---
+     .      .  246: 
+     .      .  247: void setup(int argc, char* argv[]) {
+     .      .  248:     struct option long_options[] = {
+     .      .  249:         {"threads", required_argument, 0, 't'},
+     .      .  250:         {"iterations", required_argument, 0, 'i'},
+ROUTINE ====================== thread_needle in /u/ee/ugrad/gurbir/cs111/lab2b/lab2_list.c
+   321    428 Total samples (flat / cumulative)
+     .      .   96: void seg_fault_fc() {
+     .      .   97:         fprintf(stderr, "Error: Segmentation fault :( ");
+     .      .   98:         exit(2);
+     .      .   99: }
+     .      .  100: 
+---
+     .      .  101: void* thread_needle(void *stuff) {
+     .      .  102:     long timer1 = 0;
+     .      .  103:     struct timespec initializer, closer;
+     .      .  104:     SortedListElement_t* array = stuff;
+     .      .  105:     unsigned long i = 0;
+     .      .  106:     while (i < iterations) {
+     1      1  107: 	const char* map = (array+i) -> key; 
+     .      .  108:      int randomizer = 31;
+     .      .  109: 
+     .      .  110:      while (*map) {
+     .      .  111:             randomizer = 28 * randomizer ^ *map;
+     .      .  112:             map++;
+     .      .  113:       }
+     .      .  114: 
+     .      .  115:         unsigned int hash = randomizer % lists;
+     .      .  116: 	switch (sync1) {
+     .      .  117: 		case 'm':
+     .      .  118: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  119: 			pthread_mutex_lock(mutex + hash);
+     .      .  120: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  121:  		       	timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  122:         		SortedList_insert(headNode + hash, (SortedListElement_t *) (array+i));
+     .      .  123: 			pthread_mutex_unlock(mutex + hash);
+     .      .  124: 			break; 
+     .      .  125: 		case 's':
+     .      .  126: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+   203    203  127: 			while (__sync_lock_test_and_set(lock + hash, 1)); 
+     .      .  128: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  129:        			timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .     43  130:         		SortedList_insert(headNode + hash, (SortedListElement_t *) (array+i));
+     .      .  131: 			__sync_lock_release(lock + hash);	
+     .      .  132: 			break; 
+     .      .  133: 		default:  
+     .      .  134: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  135: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  136:         		timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  137:         		SortedList_insert(headNode + hash, (SortedListElement_t *) (array+i));
+     .      .  138: 			break; 
+     .      .  139: 		}
+     .      .  140: 		i++; 
+     .      .  141:     }
+     .      .  142: 
+     .      .  143:         unsigned long length2 = 0;
+     .      .  144: 	i = 0;
+     .      .  145:         while (i < lists) {
+     .      .  146: 	     switch (sync1) {
+     .      .  147: 		case 'm': 
+     .      .  148: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  149:      		        pthread_mutex_lock(mutex + i);
+     .      .  150:                 	clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  151:                 	timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  152: 			length2 += SortedList_length(headNode + i);
+     .      .  153: 			pthread_mutex_unlock(mutex + i);
+     .      .  154: 			break;
+     .      .  155: 		case 's': 
+     .      .  156: 			while (__sync_lock_test_and_set(lock + i, 1));
+     .      .  157: 			length2 += SortedList_length(headNode + i);
+     .      .  158: 			__sync_lock_release(lock + i);
+     .      .  159: 			break;
+     .      .  160: 		default: 
+     .      .  161: 			length2 += SortedList_length(headNode + i);
+     .      .  162: 		}
+     .      .  163: 	   i++;  
+     .      .  164:       }  
+     .      .  165:     if (length2 < iterations) {
+     .      .  166:         fprintf(stderr, "Error: failed to create list.\n");
+     .      .  167:         exit(2);
+     .      .  168:     }
+     .      .  169: 
+     .      .  170:     char *curr_key = malloc(sizeof(char)*256);
+     .      .  171: 
+     .      .  172:     SortedListElement_t *ptr;
+     .      .  173:     i = 0;
+     .      .  174: 
+     .      .  175:     while (i < iterations) {
+     .      .  176: 	const char* map = (array+i) -> key;
+     .      .  177:      	int randomizer = 31;
+     .      .  178: 
+     .      .  179:      	while (*map) {
+     .      .  180:             randomizer = 28 * randomizer ^ *map;
+     .      .  181:             map++;
+     .      .  182:       	}
+     .      .  183: 
+     .      .  184:         unsigned int hash = randomizer % lists;
+     .      .  185: 	int n = SortedList_delete(ptr);
+     .      .  186: 	switch (sync1) {
+     .      .  187: 		case 'm':
+     .      .  188:         		strcpy(curr_key, (array+i)->key);
+     .      .  189: 			clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  190: 			pthread_mutex_lock(mutex + hash);
+     .      .  191: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  192: 			timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  193: 			ptr = SortedList_lookup(headNode + hash, curr_key);
+     .      .  194: 			if (ptr == NULL) {
+     .      .  195:                     	    fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  196:                 	    exit(2);
+     .      .  197: 		        }
+     .      .  198:         		n = SortedList_delete(ptr);
+     .      .  199:             		if (n != 0) {
+     .      .  200:                     	    fprintf(stderr, "Error: Failed to delete from list\n");
+     .      .  201:                 	    exit(2);
+     .      .  202:             		}
+     .      .  203: 			pthread_mutex_unlock(mutex + hash);					
+     .      .  204: 			break;
+     .      .  205: 		case 's':
+     .      .  206:                         strcpy(curr_key, (array+i)->key);
+     .      .  207:                         clock_gettime(CLOCK_MONOTONIC, &initializer);			
+   117    117  208: 			while (__sync_lock_test_and_set(lock + hash, 1));
+     .      .  209:                         clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  210:                         timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .     64  211:                         ptr = SortedList_lookup(headNode + hash, curr_key);
+     .      .  212:                         if (ptr == NULL) {
+     .      .  213:                             fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  214:                             exit(2);
+     .      .  215:                         }
+     .      .  216:                         n = SortedList_delete(ptr);
+     .      .  217:                         if (n != 0) {
+     .      .  218:                             fprintf(stderr, "Error: Failed to delete from list\n");
+     .      .  219:                             exit(2);
+     .      .  220:                         }
+     .      .  221: 			 __sync_lock_release(lock + hash);
+     .      .  222: 			break;
+     .      .  223: 		default: 
+     .      .  224:                         strcpy(curr_key, (array+i)->key);
+     .      .  225:                         clock_gettime(CLOCK_MONOTONIC, &initializer);
+     .      .  226: 			clock_gettime(CLOCK_MONOTONIC, &closer);
+     .      .  227:                         timer1 += 1000000000L * (closer.tv_sec - initializer.tv_sec) + closer.tv_nsec - initializer.tv_nsec;
+     .      .  228:                         ptr = SortedList_lookup(headNode + hash, curr_key);
+     .      .  229:                         if (ptr == NULL) {
+     .      .  230:                             fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  231:                             exit(2);
+     .      .  232:                         }
+     .      .  233:                         n = SortedList_delete(ptr);
+     .      .  234:                         if (n != 0) {
+     .      .  235:                             fprintf(stderr, "Error: Failed to search from list\n");
+     .      .  236:                             exit(2);
+     .      .  237:                         }
+     .      .  238: 			break;	
+     .      .  239: 	}
+     .      .  240: 	i++; 
+     .      .  241: 
+     .      .  242:     }
+     .      .  243: 
+     .      .  244:         return (void *) timer1;
+     .      .  245: }
+---
+     .      .  246: 
+     .      .  247: void setup(int argc, char* argv[]) {
+     .      .  248:     struct option long_options[] = {
+     .      .  249:         {"threads", required_argument, 0, 't'},
+     .      .  250:         {"iterations", required_argument, 0, 'i'},
