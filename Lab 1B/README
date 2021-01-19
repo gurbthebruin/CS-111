@@ -1,0 +1,27 @@
+NAME: Gurbir Arora
+EMAIL: gurbthbruin@g.ucla.edu
+ID: 105178554
+
+lab1b-client.c: 
+
+The client code is used to open a connection to the server and supports the port, log, and compress options. Port is a required argument that is used to specify the port that will be used to connect with the server and the log option gives the user an option to all data written to or read from the server should be logged to the specified file. Finally, the compress option enable compression and must be included from both the client and the server. 
+
+lab1b-server.c:
+
+The server code is include in this file and it is used to connect to the client and send the client's commands to the shell. The server side supports shell, compress, and port options. The port and compress options are the same as mentioned above, but the shell option is present to give the user the ability to choose the shell, otherwise it iwll be assumed to be /bin/bash. 
+
+Makefile: 
+
+The Makefile supports the default, client, server, dist, and clean targets. 
+
+README: 
+
+You're currently reading it :). 
+
+Sources: 
+
+https://users.cs.duke.edu/~chase/cps196/slides/sockets.pdf
+
+https://man7.org/linux/man-pages/man3/memset.3.html
+
+https://man7.org/linux/man-pages/man3/malloc.3.html

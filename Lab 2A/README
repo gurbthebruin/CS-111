@@ -1,0 +1,90 @@
+NAME: Gurbir Arora
+EMAIL: gurbthebruin@g.ucla.edu
+ID: 105178554
+
+
+What's in the box? 
+
+lab2_add.c ... a C program that implements and tests a shared variable add function, implements the (below) specified command line options, and produces the (below) specified output statistics.
+
+SortedList.h ... a header file (supplied by us) describing the interfaces for linked list operations.
+
+SortedList.c ... a C module that implements insert, delete, lookup, and length methods for a sorted doubly linked list (described in the provided header file, including correct placement of yield calls).
+
+lab2_list.c ... a C program that implements the (below) specified command line options and produces the (below) specified output statistics.
+
+lab2_add-1.png ... threads and iterations required to generate a failure (with and without yields)
+lab2_add-2.png ... average time per operation with and without yields.
+lab2_add-3.png ... average time per (single threaded) operation vs. the number of iterations.
+lab2_add-4.png ... threads and iterations that can run successfully with yields under each of the synchronization options.
+lab2_add-5.png ... average time per (protected) operation vs. the number of threads.
+
+lab2_list-1.png ... average time per (single threaded) unprotected operation vs. number of iterations (illustrating the correction of the per-operation cost for the list length).
+lab2_list-2.png ... threads and iterations required to generate a failure (with and without yields).
+lab2_list-3.png ... iterations that can run (protected) without failure.
+lab2_list-4.png ... (length-adjusted) cost per operation vs the number of threads for the various synchronization options.
+
+Makefile: To build the deliverable programs (lab2_add and lab2_list), output, graphs, and tarball.
+
+Supported Makefile Operations:
+
+build ... (default target) compile all programs (with the -Wall and -Wextra options).
+tests ... run all (over 200) specified test cases to generate results in CSV files. Note that the lab2_list program is expected to fail when running multiple threads without synchronization. Make sure that your Makefile continues executing despite such failures (e.g. put a '-' in front of commands that are expected to fail).
+graphs ... use gnuplot(1) and the supplied data reduction scripts to generate the required graphs
+dist ... create the deliverable tarball
+clean ... delete all programs and output created by the Makefile
+
+
+README: You're looking at it :)
+
+External Sources: http://www.cse.cuhk.edu.hk/~ericlo/teaching/os/lab/9-PThread/Pass.html
+
+https://www.mkssoftware.com/docs/man3/pthread_create.3.asp
+
+QUESTION 2.1.1 - causing conflicts:
+Why does it take many iterations before errors are seen?
+Why does a significantly smaller number of iterations so seldom fail?
+
+The reason it takes many iterations before errors are seen is due the fact that if the 
+thread can complete all steps before a context switch, then there won't be any conflicts and this is the case for the early iterations. A significantly smaller number of iterations rarely failes due to the fact that a smaller number of iterations give the thread a higher probability of completing its entire add function prior to a context switch. 
+
+
+QUESTION 2.1.2 - cost of yielding:
+Why are the --yield runs so much slower?
+Where is the additional time going?
+Is it possible to get valid per-operation timings if we are using the --yield option?
+If so, explain how. If not, explain why not.
+
+The yield runs are slower due to the fact that it takes time to context switch to a different thread, which is where the time is going. This additional times goes to saving the current registers and necessary data to perform the context switch. 
+
+It is not possible to get valid per-operation timings if we are using the yield option due to
+the fact that we are getting the time of the operation and context switch, but it is impossible to determine which operation took which amount of time. 
+
+QUESTION 2.1.3 - measurement errors:
+Why does the average cost per operation drop with increasing iterations?
+If the cost per iteration is a function of the number of iterations, how do we know how many iterations to run (or what the "correct" cost is)?
+
+The average drops with increasing iterations due to the fact that iterations are much quicker than
+creating a new thread, which means that increasing iterations allow the time taken for a context switch to be efficiently split. This is confirmed by the graph flattening out as the number 
+of iteration increase.
+
+QUESTION 2.1.4 - costs of serialization:
+Why do all of the options perform similarly for low numbers of threads?
+Why do the three protected operations slow down as the number of threads rises?
+
+When there are a low number of threads, there's also less overhead that each of the options must 
+deal with. This means that they will perform similarily. In turn, protected operations slow down as the numbers of threads rise due to the fact that there is more overhead from the larger number of critical sections that must be dealt with. 
+
+QUESTION 2.2.1 - scalability of Mutex
+Compare the variation in time per mutex-protected operation vs the number of threads in Part-1 (adds) and Part-2 (sorted lists).
+Comment on the general shapes of the curves, and explain why they have this shape.
+Comment on the relative rates of increase and differences in the shapes of the curves, and offer an explanation for these differences.
+
+Throughout Part 1, I noticed that the increasing of threads led to an increase in the mutex-protected cost per operation, but this didn't seem to be the trend in part 2 or atleast not to the extent of part 1. The Part 2 graphs seems to follow a linear trend while the Part 1 graphs follow more of a parabolic trend due to the fact that linked lists cause the locks to stay active for much longer, which results in fewer context switches and faster completion. 
+
+QUESTION 2.2.2 - scalability of spin locks
+
+Compare the variation in time per protected operation vs the number of threads for list operations protected by Mutex vs Spin locks. Comment on the general shapes of the curves, and explain why they have this shape.
+Comment on the relative rates of increase and differences in the shapes of the curves, and offer an explanation for these differences.
+
+While both graphs show positive net increase, the slope of the spinlock graph appears to be greater than the slope of the mutex graph due to the fact that the mutex library is optimized while the spinlock required systems call to be implemented. 
