@@ -1,0 +1,27 @@
+NAME: Gurbir Arora
+EMAIL: gurbthebruin@g.ucla.edu
+ID: 105178554
+
+File included: 
+
+lab1a.c: a program that compiles to an executable named lab1a, that accepts the command line argument --shell. This program put the keyboard (the file open on file descriptor 0) into character-at-a-time, no-echo mode (also known as non-canonical input mode with no echo). It reads (ASCII) input from the keyboard into a buffer. It maps received <cr> or <lf> into <cr><lf>. It also writes the received characters back out to the display, as they are processed. This project took me very long to complete and was one of the toughest assignments I've had at UCLA, so thanks! 
+
+Makefile: to build the program (compiling it with the -Wall and -Wextra options) and the tarball. Supports default, clean and dist targets. 
+
+README: You're looking at it! 
+
+External Sources: https://man7.org/linux/man-pages/man3/termios.3.html
+
+https://man.openbsd.org/fork.2
+
+https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html
+
+https://linux.die.net/man/3/exec
+
+https://www.freebsd.org/cgi/man.cgi?pipe(2)
+
+https://linux.die.net/man/3/kill
+
+https://linux.die.net/man/3/strerror
+
+https://man7.org/linux/man-pages/man2/poll.2.html
